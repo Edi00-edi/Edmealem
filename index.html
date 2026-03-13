@@ -72,7 +72,7 @@
       background: var(--card);
       min-width: 180px;
       box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-      z-index: 1001; /* High Z-index */
+      z-index: 2000;
       border: 1px solid var(--primary);
       border-radius: 8px;
       overflow: hidden;
@@ -80,7 +80,9 @@
     }
     .dropdown-content a { color: white; padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
     .dropdown-content a:hover { background: var(--primary); color: black; }
-    .dropdown:hover .dropdown-content { display: block; animation: slideIn 0.3s ease; }
+    
+    /* Toggle class for JS click control */
+    .dropdown.show-menu .dropdown-content { display: block; animation: slideIn 0.3s ease; }
 
     @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -88,7 +90,6 @@
     .page-section.active { display: block; animation: fadeIn 0.6s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* HERO STYLING */
     .hero { display: flex; align-items: center; gap: 3rem; padding-top: 2rem; min-height: 70vh; flex-wrap: wrap; }
     .hero-img { flex: 1; min-width: 280px; position: relative; display: flex; justify-content: center; perspective: 1000px; }
     
@@ -165,29 +166,26 @@
     .pulse { width: 8px; height: 8px; background: #00ff00; border-radius: 50%; box-shadow: 0 0 10px #00ff00; animation: pulse-anim 2s infinite; }
     @keyframes pulse-anim { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-    /* MEDIA QUERIES FOR MAX RESPONSIVENESS */
+    /* MEDIA QUERIES */
     @media (max-width: 992px) {
       .hero { gap: 2rem; }
     }
 
     @media (max-width: 768px) { 
-      header { padding: 1rem; flex-direction: column; gap: 1rem; height: auto; }
+      header { padding: 1rem; flex-direction: column; gap: 1rem; }
       .nav-container { 
         width: 100%; 
-        overflow-x: visible; /* Changed from auto to visible to let dropdown show */
-        padding-bottom: 5px; 
-        justify-content: center; 
-        flex-wrap: wrap; /* Allows nav buttons to wrap if they exceed width */
+        overflow-x: auto; 
+        padding-bottom: 10px; 
+        justify-content: flex-start; 
+        scrollbar-width: none; 
       }
-      /* Ensure dropdown is visible on mobile and doesn't get cut off */
-      .dropdown-content {
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        right: auto;
-        min-width: 150px;
-      }
+      .nav-container::-webkit-scrollbar { display: none; }
+      
+      /* Only allow overflow when the dropdown is actually showing */
+      .nav-container.menu-open { overflow: visible; }
+      
+      .dropdown-content { right: auto; left: 0; position: fixed; top: 110px; }
       .hero { flex-direction: column; text-align: center; } 
       .hero-img img { max-width: 280px; }
       .page-section { padding-top: 3rem; }
@@ -201,11 +199,11 @@
 
   <header>
     <div style="font-weight: 700; font-size: 1.4rem; letter-spacing: -1px;">EDMEALEM<span style="color:var(--primary)"> Minalu</span></div>
-    <nav class="nav-container">
+    <nav class="nav-container" id="main-nav">
       <button class="nav-btn active-link" onclick="showPage('home', this)">Home</button>
       <button class="nav-btn" onclick="showPage('about', this)">About & Certs</button>
-      <div class="dropdown">
-        <button class="nav-btn">Projects ▾</button>
+      <div class="dropdown" id="projects-dropdown">
+        <button class="nav-btn" onclick="toggleMenu(event)">Projects ▾</button>
         <div class="dropdown-content">
           <a href="https://edi00-edi.github.io/Airbnb-Group8-IS-Students/" target="_blank">Airbnb</a>
           <a href="https://edi00-edi.github.io/TechNews/" target="_blank">TechNews</a>
@@ -369,6 +367,21 @@
   </footer>
 
   <script>
+    /* DROPDOWN LOGIC - FIXED FOR MOBILE SCROLL */
+    function toggleMenu(e) {
+      e.stopPropagation();
+      const drop = document.getElementById('projects-dropdown');
+      const nav = document.getElementById('main-nav');
+      drop.classList.toggle('show-menu');
+      nav.classList.toggle('menu-open');
+    }
+
+    // Close when clicking outside
+    window.addEventListener('click', () => {
+      document.getElementById('projects-dropdown').classList.remove('show-menu');
+      document.getElementById('main-nav').classList.remove('menu-open');
+    });
+
     const textElement = document.getElementById("typewriter");
     const phrases = ["Complete Beginner In All Of These Things","Full-Stack Developer", "Data Analyst", "UI/UX Designer"];
     let pIdx = 0, cIdx = 0, isDel = false;
